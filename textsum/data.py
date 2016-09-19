@@ -21,7 +21,7 @@ import struct
 import sys
 
 from tensorflow.core.example import example_pb2
-
+import tensorflow
 
 # Special tokens
 PARAGRAPH_START = '<p>'
@@ -90,12 +90,7 @@ def ExampleGen(recordio_path, num_epochs=None):
     assert filelist, 'Empty filelist.'
     random.shuffle(filelist)
     for f in filelist:
-      reader = open(f, 'rb')
-      while True:
-        len_bytes = reader.read(8)
-        if not len_bytes: break
-        str_len = struct.unpack('q', len_bytes)[0]
-        example_str = struct.unpack('%ds' % str_len, reader.read(str_len))[0]
+      for example_str in tensorflow.python_io.tf_record_iterator(f):
         yield example_pb2.Example.FromString(example_str)
 
     epoch += 1
